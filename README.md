@@ -1,1 +1,3 @@
 # immoinvest
+
+docker compose up

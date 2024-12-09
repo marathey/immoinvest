@@ -22,6 +22,15 @@
       "@/*": ["./src/*"]
     }
   },
+  "watchOptions": {
+    // Use a dynamic polling instead of system’s native events for file changes.
+    "watchFile": "dynamicPriorityPolling",
+    "watchDirectory": "dynamicPriorityPolling",
+    "excludeDirectories": [
+      "**/node_modules",
+      "dist"
+    ]
+  },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
