@@ -12,33 +12,38 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - NEXT_TELEMETRY_DISABLED=1
     depends_on:
-      - backend
+      - audit-log-ms
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
 
-  backend:
-    build: ./backend
+  audit-log-ms:
+    build: ./audit-log-ms
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/dbname
+      - VAULT_ADDR=http://vault:8200
     depends_on:
       - db
     volumes:
-      - ./backend:/app
+      - ./audit-log-ms:/app
+    networks:
+      - app-network
+      - vault-network
 
   db:
     build: ./db
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=dbname
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
+  vault-network:
+    external: true

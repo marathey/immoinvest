@@ -1,0 +1,10 @@
+secrets:
+  database/config:
+    required_keys:
+      - username
+      - password
+      - host
+      - port
+      - dbname
+      - schema
+      - encoding

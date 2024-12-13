@@ -1,0 +1,27 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  vault:
+    image: hashicorp/vault:1.18.2 # Use the latest stable Vault version
+    ports:
+      - "8200:8200"
+    volumes:
+      - ./vault/config:/vault/config
+      - ./vault/data:/vault/data
+      - ./vault/logs:/vault/logs
+    cap_add:
+      - IPC_LOCK # Ensures Vault's in-memory secrets are secure
+    command: vault server -config=/vault/config/vault.hcl
+    networks:
+      - vault-network
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  vault-network:
+    name: vault-network
+    driver: bridge
