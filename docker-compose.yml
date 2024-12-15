@@ -19,7 +19,8 @@ services:
     build: ./company-srv
     ports:
       - "8001:8000"
-
+    environment:
+      - AUDIT_LOG_SERVICE=http://audit-log-srv:8000
     depends_on:
       postgres:
         condition: service_healthy

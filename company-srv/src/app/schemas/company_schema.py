@@ -41,27 +41,3 @@ class CompanyVersionResponse(CompanyBase):
     class Config:
         from_attributes = True
 
-class CompanyStatusBase(BaseModel):
-    status_code: str
-    status_name: str
-    status_description: Optional[str] = None
-    is_active: bool = True
-
-class CompanyStatusCreate(CompanyStatusBase):
-    pass
-
-class CompanyStatusUpdate(BaseModel):
-    status_code: Optional[str] = None
-    status_name: Optional[str] = None
-    status_description: Optional[str] = None
-    is_active: Optional[bool] = None
-
-class CompanyStatusResponse(CompanyStatusBase):
-    status_id: UUID4
-    created_at: datetime
-    created_by: str
-    updated_at: datetime
-    updated_by: str
-
-    class Config:
-        from_attributes = True

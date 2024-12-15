@@ -6,7 +6,7 @@ from uuid import UUID
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from app.database import get_db_session
-from app.schemas import CompanyCreate, CompanyUpdate, CompanyResponse, CompanyVersionResponse, CompanyStatusResponse, CompanyStatusCreate, CompanyStatusUpdate
+from app.schemas import CompanyCreate, CompanyUpdate, CompanyResponse, CompanyVersionResponse
 from app.services import (
     create_company,
     get_company,
@@ -19,7 +19,9 @@ from app.services import (
 from loguru import logger
 import os
 
-router = APIRouter()
+router = APIRouter(prefix="/companies",
+        tags=["Companies"]
+    )
 security = HTTPBearer()
 
 # Configuration (should be in environment variables in production)
@@ -53,7 +55,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-@router.post("/companies", response_model=CompanyResponse)
+@router.post("/", response_model=CompanyResponse)
 async def create_company_endpoint(
     company: CompanyCreate,
     change_reason: Optional[str] = None,
@@ -75,7 +77,7 @@ async def create_company_endpoint(
         logger.error(f"Error creating company: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/companies/{company_id}", response_model=CompanyResponse)
+@router.get("/{company_id}", response_model=CompanyResponse)
 async def get_company_endpoint(
     company_id: UUID,
     current_user: dict = Depends(get_current_user),
@@ -106,7 +108,7 @@ async def list_companies(
         logger.error(f"Error fetching companies: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.put("/companies/{company_id}", response_model=CompanyResponse)
+@router.put("/{company_id}", response_model=CompanyResponse)
 async def update_company_endpoint(
     company_id: UUID,
     company: CompanyUpdate,
@@ -139,7 +141,7 @@ async def update_company_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
         
 
-@router.delete("/companies/{company_id}", response_model=CompanyResponse)
+@router.delete("/{company_id}", response_model=CompanyResponse)
 async def delete_company_endpoint(
     company_id: UUID,
     change_reason: Optional[str] = None,
@@ -164,7 +166,7 @@ async def delete_company_endpoint(
         logger.error(f"Error deleting company: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/companies/{company_id}/versions", response_model=List[CompanyVersionResponse])
+@router.get("/{company_id}/versions", response_model=List[CompanyVersionResponse])
 async def get_company_versions_endpoint(
     company_id: UUID,
     skip: int = Query(default=0, ge=0),
@@ -182,7 +184,7 @@ async def get_company_versions_endpoint(
         logger.error(f"Error fetching company versions: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/companies/{company_id}/restore/{version_number}", response_model=CompanyResponse)
+@router.post("/{company_id}/restore/{version_number}", response_model=CompanyResponse)
 async def restore_company_version_endpoint(
     company_id: UUID,
     version_number: int,
@@ -219,46 +221,3 @@ async def get_test_token():
     if os.getenv("ENVIRONMENT") != "development":
         raise HTTPException(status_code=404, detail="Not found")
     return {"token": create_test_token()}
-
-
-# In routes.py
-@router.post("/company-statuses", response_model=CompanyStatusResponse)
-async def create_company_status_endpoint(
-    status: CompanyStatusCreate,
-    current_user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
-):
-    """Create a new company status type."""
-    return await create_company_status(db, status, user_id=current_user["user_id"])
-
-@router.get("/company-statuses", response_model=List[CompanyStatusResponse])
-async def list_company_statuses(
-    active_only: bool = True,
-    db: AsyncSession = Depends(get_db_session)
-):
-    """List all company statuses."""
-    return await get_company_statuses(db, active_only)
-
-@router.get("/company-statuses/{status_id}", response_model=CompanyStatusResponse)
-async def get_company_status_endpoint(
-    status_id: UUID,
-    db: AsyncSession = Depends(get_db_session)
-):
-    """Get a specific company status."""
-    status = await get_company_status(db, status_id)
-    if not status:
-        raise HTTPException(status_code=404, detail="Status not found")
-    return status
-
-@router.put("/company-statuses/{status_id}", response_model=CompanyStatusResponse)
-async def update_company_status_endpoint(
-    status_id: UUID,
-    status: CompanyStatusUpdate,
-    current_user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db_session)
-):
-    """Update a company status type."""
-    updated_status = await update_company_status_type(db, status_id, status, user_id=current_user["user_id"])
-    if not updated_status:
-        raise HTTPException(status_code=404, detail="Status not found")
-    return updated_status
