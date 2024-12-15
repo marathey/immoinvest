@@ -1,6 +1,7 @@
 from pydantic import BaseModel, UUID4
 from typing import Optional
 from datetime import datetime
+from pydantic.config import ConfigDict
 
 class CompanyStatusBase(BaseModel):
     status_code: str
@@ -22,5 +23,4 @@ class CompanyStatusResponse(CompanyStatusBase):
     updated_at: datetime
     updated_by: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

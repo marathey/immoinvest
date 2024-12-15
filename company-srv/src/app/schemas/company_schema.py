@@ -1,6 +1,7 @@
 from pydantic import BaseModel, UUID4
 from typing import Optional
 from datetime import datetime
+from pydantic.config import ConfigDict
 
 class CompanyBase(BaseModel):
     company_code: str
@@ -26,8 +27,7 @@ class CompanyResponse(CompanyBase):
     updated_at: datetime
     updated_by: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CompanyVersionResponse(CompanyBase):
     version_id: UUID4
@@ -38,6 +38,5 @@ class CompanyVersionResponse(CompanyBase):
     change_type: str
     change_reason: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 

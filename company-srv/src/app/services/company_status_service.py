@@ -62,7 +62,7 @@ async def update_company_status_type(
     if not status:
         return None
         
-    update_dict = status_data.dict(exclude_unset=True)
+    update_dict = status_data.model_dump(exclude_unset=True)
     for key, value in update_dict.items():
         setattr(status, key, value)
     status.updated_by = user_id

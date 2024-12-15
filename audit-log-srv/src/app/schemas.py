@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, Dict
 from uuid import UUID
+from pydantic.config import ConfigDict
 
 class AuditLogEntry(BaseModel):
     service_name: str
@@ -13,5 +14,4 @@ class AuditLogEntry(BaseModel):
     new_data: Optional[Dict] = None  # New state of the entity
     meta_data: Optional[Dict] = None  # Additional metadata
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

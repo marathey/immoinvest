@@ -18,3 +18,9 @@ class CompanyStatus(Base):
     updated_by = Column(String, nullable=False)
     
     companies = relationship("Company", back_populates="status")
+
+    def __init__(self, **kwargs):
+        # Set default value for is_active if not provided
+        if 'is_active' not in kwargs:
+            kwargs['is_active'] = True
+        super().__init__(**kwargs)

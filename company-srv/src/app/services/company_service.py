@@ -145,7 +145,7 @@ async def update_company(
 
         # Filter out None values and empty strings from the update data
         update_dict = {
-            k: v for k, v in update_data.dict(exclude_unset=True).items()
+            k: v for k, v in update_data.model_dump(exclude_unset=True).items()
             if v is not None and v != ""
         }
         
