@@ -1,7 +1,9 @@
-from pydantic import BaseModel
-from typing import Optional, Dict
+from pydantic import BaseModel, field_validator
+from typing import Optional, Dict, Any
 from uuid import UUID
 from pydantic.config import ConfigDict
+import json
+import datetime
 
 class AuditLogEntry(BaseModel):
     service_name: str
@@ -15,3 +17,24 @@ class AuditLogEntry(BaseModel):
     meta_data: Optional[Dict] = None  # Additional metadata
 
     model_config = ConfigDict(from_attributes=True)
+        
+    @field_validator('previous_data', 'new_data', 'meta_data')
+    @classmethod
+    def validate_json_serializable(cls, value: Optional[Dict]) -> Optional[Dict]:
+        if value is None:
+            return value
+        try:
+            # Test if the data is JSON serializable
+            json.dumps(value)
+            return value
+        except (TypeError, ValueError) as e:
+            raise ValueError(f"Value must be JSON serializable: {str(e)}")
+
+    def model_dump_json(self, **kwargs):
+        def custom_encoder(obj):
+            if isinstance(obj, (UUID, datetime)):
+                return str(obj)
+            raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+            
+        return json.dumps(self.model_dump(), default=custom_encoder, **kwargs)
+
