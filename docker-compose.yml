@@ -1,43 +1,52 @@
 # docker-compose.yml
-version: '3.8'
 
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "8080:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
-      - NEXT_TELEMETRY_DISABLED=1
-    depends_on:
-      - audit-log-ms
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-
-  audit-log-ms:
-    build: ./audit-log-ms
+  audit-log-srv:
+    build: ./audit-log-srv
     ports:
       - "8000:8000"
-    environment:
-      - VAULT_ADDR=http://vault:8200
+
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
     volumes:
-      - ./audit-log-ms:/app
+      - ./audit-log-srv:/app
+      - ./shared_logs:/var/log
     networks:
       - app-network
-      - vault-network
 
-  db:
-    build: ./db
+  company-srv:
+    build: ./company-srv
+    ports:
+      - "8001:8000"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./company-srv:/app
+      - ./shared_logs:/var/log
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres     # Default username (optional)
+      POSTGRES_PASSWORD: password # Required superuser password
+      POSTGRES_DB: mydatabase     # Initial database to create (optional)
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
 
 volumes:
   postgres_data:
@@ -45,5 +54,3 @@ volumes:
 networks:
   app-network:
     driver: bridge
-  vault-network:
-    external: true

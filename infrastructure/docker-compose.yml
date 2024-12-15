@@ -1,6 +1,4 @@
 # docker-compose.yml
-version: '3.8'
-
 services:
   vault:
     image: hashicorp/vault:1.18.2 # Use the latest stable Vault version

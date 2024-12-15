@@ -1,3 +1,6 @@
 # immoinvest
 
 docker compose up
+
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdC11c2VyIiwiZXhwIjoxNzM0MzU3OTA5fQ.w7bBQ2LlDb79cYB_3vdwz1TN3X37Ad9TjSMpiAoXKMU
